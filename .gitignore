@@ -332,3 +332,5 @@ ASALocalRun/
 *.sln
 /opencv_test/opencv_test.vcxproj
 /opencv_test/opencv_test.vcxproj.filters
+/opencv_wall/opencv_wall.vcxproj
+/opencv_wall/opencv_wall.vcxproj.filters

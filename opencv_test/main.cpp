@@ -1,5 +1,4 @@
 #include <opencv2/opencv.hpp>
-
 #include <iostream>
 #include <math.h>
 #include <stdio.h>
@@ -14,7 +13,6 @@
 
 using namespace cv;
 
-
 const double PI = 3.14159265359;//円周率
 
 //スクリーン座標系の赤外線LEDの間隔[px]
@@ -24,7 +22,8 @@ const int PROJECTION_INTERVAL_ROWS = 800;
 const int PROJECTION_COLS_HALF = 768 / 2;//縦の解像度の半分[px]
 const int PROJECTION_ROWS_HALF = 1024 / 2;//横の解像度の半分[px]
 
-										  //3点のLEDによって作られる二等辺三角形において
+
+										 //3点のLEDによって作られる二等辺三角形において
 const int BASE_ANGLE = 120;//鈍角のなす角[deg]
 const int THRESHOLD_ANGLE = 20;//鈍角のなす角の許容角度[deg]
 
@@ -59,7 +58,7 @@ int angle_of_two_vector(Vector2D A, Vector2D B)
 	//cosθからθを求める
 	double sita = acos(cos_sita);
 
-	//ラジアンでなく0～180の角度でほしい場合はコメント外す
+	//ラジアンでなく0～180の角度で出力
 	sita = sita * 180.0 / PI;
 
 	return static_cast<int>(sita);
@@ -82,9 +81,6 @@ void draw_line(Vector2D v1, Vector2D v2, cv::Mat img) {
 		cv::Point(static_cast<int>(v2.x), static_cast<int>(v2.y)), cv::Scalar(0, 255, 0), 3, 8);
 }
 //(0)
-
-
-
 
 
 
@@ -214,7 +210,7 @@ int main(int argc, const char* argv[])
 					topAngleNum = 2;
 				}
 
-				Vector2D v1, v2;//直角な角から他の点へのベクトル
+				Vector2D v1, v2;//鈍角から他の点へのベクトル
 				v1.x = x[A] - x[topAngleNum];
 				v1.y = y[A] - y[topAngleNum];
 				v2.x = x[B] - x[topAngleNum];
