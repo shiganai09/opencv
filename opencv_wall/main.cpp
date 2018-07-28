@@ -5,11 +5,11 @@ int main()
 	/*Webカメラ初期設定*/
 	cv::VideoCapture cap(0);//デバイスのオープン(エラーが出る使う場合'1'かもしれない)
 	cap.set(cv::CAP_PROP_FPS, 30.0);
-	//cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);//解像度 横(予備)
-	//cap.set(CV_CAP_PROP_FRAME_HEIGHT, 960);//解像度 縦(予備)
+	//cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280); //解像度 横(予備)
+	//cap.set(CV_CAP_PROP_FRAME_HEIGHT, 960); //解像度 縦(予備)
 	cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
 	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
-	cap.set(CV_CAP_PROP_EXPOSURE, -13);//露出を下げてシャッター速度を上げる
+	cap.set(CV_CAP_PROP_EXPOSURE, -13); //露出を下げてシャッター速度を上げる
 
 	/*
 	if (!cap.isOpened())//カメラデバイスが正常にオープンしたか確認
@@ -36,6 +36,11 @@ int main()
 
 		cv::Mat dst=bin.clone();
 
+		std::cout << "color ch:" << color.channels() << std::endl;
+		std::cout << "gray ch:" << gray.channels() << std::endl;
+		std::cout << "bin ch:" << bin.channels() << std::endl;
+		std::cout << "dst ch:" << dst.channels() << std::endl;
+
 		// 2値画像中の輪郭を検出
 		cv::findContours(dst,     //入力画像，8ビット，シングルチャンネル．0以外のピクセルは 1 、0のピクセルは0として扱う。処理結果として image を書き換えることに注意する.
 			contours,             // 輪郭を点ベクトルとして取得する
@@ -44,41 +49,42 @@ int main()
 			CV_CHAIN_APPROX_NONE  // 輪郭の近似手法
 		);
 
+
+
 		cv::Vec4f line;
 		cv::fitLine(contours[0], line, CV_DIST_L2, 0, 0.01, 0.01);
 
+		int y0 = line.val[3] - line.val[1] * line.val[2];
+
+		std::cout << (int)line.val[1] << std::endl;
+		std::cout << y0 << std::endl;
+
 		// 線分を描画
 		cv::line(dst,
-			cv::Point(line.val[2] - line.val[0] * 20.0, line.val[3] - line.val[1] * 20.0),     // １つ目の線分の座標
-			cv::Point(line.val[2] + line.val[0] * 20.0, line.val[3] + line.val[1] * 20.0),     // ２つ目の線分の座標
-			cv::Scalar(0, 0, 255),   // 色
-			10,                       // 太さ
+			cv::Point(0, y0),
+			cv::Point(dst.cols, line.val[1]+y0),
+			cv::Scalar(255),
+			3,
 			cv::LINE_8
 		);
-
-
-
-
-		//for (int i = 0; i >= 0; i = hierarchy[i][0]) {}
-
-		/*
-		for (int i = 0; i >= 0; i = hierarchy[i][0])
-		{
-			// 2 次元あるいは 3 次元の点集合に直線をフィッティング
-			cv::fitLine(contours[i], line, CV_DIST_L2, 0, 0.01, 0.01);
-
-			// 線分を描画
-			cv::line(bin,
-				cv::Point(line.val[2] - line.val[0] * 20.0, line.val[3] - line.val[1] * 20.0),     // １つ目の線分の座標
-				cv::Point(line.val[2] + line.val[0] * 20.0, line.val[3] + line.val[1] * 20.0),     // ２つ目の線分の座標
-				cv::Scalar(0, 0, 255),   // 色
-				2,                       // 太さ
-				cv::LINE_8
-			);
-		}
-		*/
-
 		
+		const int div = 5;
+		const int  count= dst.cols /div;
+
+		for (int i = 1; i < count; i++) {
+			int sum = 0;
+			for (int j = -1 * div / 2 - 1; j < div / 2 - 1; j++) {
+				for (int k = -1 * div / 2 - 1; k < div / 2 - 1; k++) {
+					sum += (unsigned int)dst.at<unsigned char>((div*i)*line.val[1] + y0 + k,div*i+j ); //(y,x)のピクセルの値を取得する
+					dst.at<unsigned char>((div*i)*line.val[1] + y0 + k, div*i + j)=127;
+				}
+			}
+			std::cout << "count=" << i << ": sum=" << sum << std::endl;
+		}
+
+		//cv::rectangle(dst, cv::Point(10, 10), cv::Point(1500, 20),cv::Scalar(255), -1); //長方形を描く
+
+		std::cout << (unsigned int)dst.at<unsigned char>(15, 15) << std::endl;		
 
 		cv::imshow("window",dst);//画像を表示．
 
