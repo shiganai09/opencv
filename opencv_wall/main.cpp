@@ -4,10 +4,14 @@ int main()
 {
 	/*Webカメラ初期設定*/
 	cv::VideoCapture cap(0);//デバイスのオープン(エラーが出る使う場合'1'かもしれない)
+	cap.set(cv::CAP_PROP_EXPOSURE, 0.25);
 	cap.set(cv::CAP_PROP_FPS, 30.0);
-	cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
-	//cap.set(CV_CAP_PROP_EXPOSURE, -10); //露出を下げてシャッター速度を上げる
+	//cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+	//cap.set(CV_CAP_PROP_FRAME_HEIGHT, 360);
+	cap.set(CV_CAP_PROP_EXPOSURE, -10.0); //露出を下げてシャッター速度を上げる
+
+	std::cout << cap.get(cv::CAP_PROP_FRAME_HEIGHT)<<std::endl;
+	std::cout << cap.get(cv::CAP_PROP_FRAME_WIDTH) << std::endl;
 
 	if (!cap.isOpened())//カメラデバイスが正常にオープンしたか確認
 	{
@@ -17,10 +21,11 @@ int main()
 
 	/*Webカメラ初期設定*/
 	cv::VideoCapture cap2(1);//デバイスのオープン(エラーが出る使う場合'1'かもしれない)
+	cap2.set(cv::CAP_PROP_EXPOSURE, 0.25);
 	cap2.set(cv::CAP_PROP_FPS, 30.0);
-	cap2.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-	cap2.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
-	//cap2.set(CV_CAP_PROP_EXPOSURE, -10); //露出を下げてシャッター速度を上げる
+	//cap2.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+	//cap2.set(CV_CAP_PROP_FRAME_HEIGHT, 360);
+	cap2.set(CV_CAP_PROP_EXPOSURE, -10.0); //露出を下げてシャッター速度を上げる
 
 	if (!cap2.isOpened())//カメラデバイスが正常にオープンしたか確認
 	{
