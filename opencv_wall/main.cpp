@@ -5,9 +5,9 @@ int main()
 	/*Webカメラ初期設定*/
 	cv::VideoCapture cap(0);//デバイスのオープン(エラーが出る使う場合'1'かもしれない)
 	cap.set(cv::CAP_PROP_FPS, 30.0);
-	cap.set(CV_CAP_PROP_FRAME_WIDTH, 320);
-	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
-	cap.set(CV_CAP_PROP_EXPOSURE, -13); //露出を下げてシャッター速度を上げる
+	cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+	//cap.set(CV_CAP_PROP_EXPOSURE, -10); //露出を下げてシャッター速度を上げる
 
 	/*今回は使わない*/
 	if (!cap.isOpened())//カメラデバイスが正常にオープンしたか確認
@@ -32,12 +32,6 @@ int main()
 
 		cv::Mat dst=bin.clone(); //出力用の画像Matを用意しておく
 
-		//チャンネル数確認用（いらない）
-		std::cout << "color ch:" << color.channels() << std::endl;
-		std::cout << "gray ch:" << gray.channels() << std::endl;
-		std::cout << "bin ch:" << bin.channels() << std::endl;
-		std::cout << "dst ch:" << dst.channels() << std::endl;
-
 		std::vector<std::vector<cv::Point>>contours;
 		std::vector<cv::Vec4i> hierarchy;
 
@@ -49,7 +43,6 @@ int main()
 			CV_CHAIN_APPROX_NONE  // 輪郭の近似手法
 		);
 
-
 		cv::Vec4f line; //フィッティングした線[vx,vy,x0,y0]{vx,vy(x,y方向の方向ベクトル),x0,y0(どこかわからないが線上の点)}
 
 		cv::fitLine(contours[0], line, CV_DIST_L2, 0, 0.01, 0.01);
@@ -57,6 +50,7 @@ int main()
 		float grad_m = line.val[1] / line.val[0]; //dy/dx
 		int y0 = line.val[3] - grad_m* line.val[2]; //y切片を求める(y0-m*x0) ：mは一次関数の傾き
 
+		//フィッティングした線が処理範囲内に入っているかどうか(trueは入っている）
 		bool in_range = true;
 		if (y0 < 100) {in_range = false; 
 		}
@@ -66,14 +60,9 @@ int main()
 		}
 		if (grad_m * dst.cols + y0 <0) {in_range = false;
 		}
-
-		std::cout <<in_range << std::endl; //y切片(x=0でのyの値(オフセット))
-		std::cout << (int)line.val[1] << std::endl; //一次関数の傾き
-		std::cout << y0 << std::endl; //y切片(x=0でのyの値(オフセット))
-
 		
 		/*
-		// 線分を描画(x=0 -> x=imageWidth)
+		// フィッティングした線を描画(x=0 -> x=imageWidth)
 		cv::line(dst,
 			cv::Point(0, y0),
 			cv::Point(dst.cols, line.val[1]* dst.cols +y0),
@@ -104,7 +93,7 @@ int main()
 				}
 				if (!falling && sum == 0) { fallPoint.emplace_back(i); falling = true; }
 				if (falling && sum > 0) { raisePoint.emplace_back(i); falling = false; }
-				std::cout << "Count=" << i << ": sum=" << sum << std::endl;
+				//std::cout << "Count=" << i << ": sum=" << sum << std::endl;
 			}
 
 			int touchCentor = 0;
@@ -114,17 +103,13 @@ int main()
 			else {
 				touchCentor = (raisePoint[0] + fallPoint[0]) / 2;
 				int theta = touchCentor * 60 / MAX_COUNT;
-				std::cout << "CentorPoint = " << touchCentor << std::endl;
+				//std::cout << "CentorPoint = " << touchCentor << std::endl;
 				std::cout << "theta = " << theta << std::endl;
 			}
 
 		}
-		
-
-		cv::imshow("window",dst);//画像を表示．
-
+		cv::imshow("window", color); //USBカメラからの画像を入力//画像を表示．
 		int key = cv::waitKey(10);
-
 	}
 }
 
