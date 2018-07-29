@@ -15,14 +15,29 @@ int main()
 		return -1;
 	}
 
+	/*Webカメラ初期設定*/
+	cv::VideoCapture cap2(1);//デバイスのオープン(エラーが出る使う場合'1'かもしれない)
+	cap2.set(cv::CAP_PROP_FPS, 30.0);
+	cap2.set(CV_CAP_PROP_FRAME_WIDTH, 320);
+	cap2.set(CV_CAP_PROP_FRAME_HEIGHT, 240);
+	//cap2.set(CV_CAP_PROP_EXPOSURE, -10); //露出を下げてシャッター速度を上げる
+
+	if (!cap2.isOpened())//カメラデバイスが正常にオープンしたか確認
+	{
+		//読み込みに失敗したときの処理
+		return -1;
+	}
+
 	//cv::Mat pict = cv::imread("testPict.png"); //画像の読み込み(webカメラないとき)
 
 	while (1) {
 		cv::Mat color;//カラー画像Mat
 		cv::Mat gray;//グレースケール画像Mat
-
 		cap >> color; //USBカメラからの画像を入力
 					  //color = pict.clone(); //カメラからの入力の代替(webカメラないとき)
+
+		cv::Mat color2;
+		cap2 >> color2;
 
 		cv::cvtColor(color, gray, cv::COLOR_BGR2GRAY);//グレースケール化
 		cv::Mat bin;//二値化画像Mat
@@ -109,7 +124,9 @@ int main()
 			}
 
 		}
-		cv::imshow("window", dst); //USBカメラからの画像を入力//画像を表示．
+		cap >> color;
+		cv::imshow("window", color); //USBカメラからの画像を入力//画像を表示．
+		cv::imshow("window2", color2);
 		int key = cv::waitKey(10);
 	}
 }
